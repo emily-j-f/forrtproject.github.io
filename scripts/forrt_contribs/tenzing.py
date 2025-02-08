@@ -103,9 +103,15 @@ def format_name(row):
         full_name = f"{first_name} {surname}"
 
     return full_name
+    
+    # Ensure full name consistency
+    merged_data['full_name'] = merged_data.apply(lambda row: format_name(row), axis=1)
+    
+    # Group by full name and propagate ORCID iD within each group
+    merged_data['ORCID iD'] = merged_data.groupby('full_name')['ORCID iD'].transform(lambda x: x.fillna(method='ffill').fillna(method='bfill')) 
 
-# Group by 'ORCID iD' and concatenate the contributions
-def concatenate_contributions(group):
+    # Group by 'ORCID iD' and concatenate the contributions
+    def concatenate_contributions(group):
 
     # Find the minimum original order for the group
     min_order = group['original_order'].min()
